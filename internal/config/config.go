@@ -38,28 +38,28 @@ func init() {
 	WX_APP_SECRET := os.Getenv("WX_APP_SECRET")
 
 	if DB_HOST == "" {
-		log.Logger.Error().Msg("DB_HOST is required")
+		log.Logger.Fatal().Msg("DB_HOST is required")
 	}
 	if DB_PORT == "" {
-		log.Logger.Error().Msg("DB_PORT is required")
+		log.Logger.Fatal().Msg("DB_PORT is required")
 	}
 	if DB_USER == "" {
-		log.Logger.Error().Msg("DB_USER is required")
+		log.Logger.Fatal().Msg("DB_USER is required")
 	}
 	if DB_PASSWORD == "" {
-		log.Logger.Error().Msg("DB_PASSWORD is required")
+		log.Logger.Fatal().Msg("DB_PASSWORD is required")
 	}
 	if DB_NAME == "" {
-		log.Logger.Error().Msg("DB_NAME is required")
+		log.Logger.Fatal().Msg("DB_NAME is required")
 	}
 	if SERVER_PORT == "" {
 		SERVER_PORT = "8080"
 	}
 	if WX_APP_ID == "" {
-		log.Logger.Error().Msg("WX_APP_ID is required")
+		log.Logger.Fatal().Msg("WX_APP_ID is required")
 	}
 	if WX_APP_SECRET == "" {
-		log.Logger.Error().Msg("WX_APP_SECRET is required")
+		log.Logger.Fatal().Msg("WX_APP_SECRET is required")
 	}
 
 	Cfg = Config{
