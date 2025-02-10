@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"net/http"
 
+	"wx-miniprogram-backend/internal/config"
+	"wx-miniprogram-backend/internal/handler"
 	"wx-miniprogram-backend/internal/log"
 )
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World!")
-}
-
 func main() {
-	http.HandleFunc("/", helloHandler)
+	http.HandleFunc("/api/login", handler.LoginHandler)
 
-	log.Logger.Info().Msg("Server starting on port 8080...")
+	serverAddr := fmt.Sprintf(":%s", config.Cfg.ServerPort)
+	log.Logger.Info().Msgf("Server starting on port %s...", config.Cfg.ServerPort)
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(serverAddr, nil); err != nil {
 		log.Logger.Fatal().Err(err).Msg("Server failed to start")
 	}
 }
