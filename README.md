@@ -1,6 +1,6 @@
 # wx-miniprogram-backend
 
-后端服务器
+微信小程序开发大作业的后端，使用Go语言开发。
 
 ## install dependencies
 
