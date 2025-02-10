@@ -14,11 +14,11 @@ var DB *sqlx.DB
 
 func Connect() {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		config.Cfg.DB.Host,
-		config.Cfg.DB.Port,
-		config.Cfg.DB.User,
-		config.Cfg.DB.Password,
-		config.Cfg.DB.Name,
+		config.Cfg.Database.Host,
+		config.Cfg.Database.Port,
+		config.Cfg.Database.User,
+		config.Cfg.Database.Password,
+		config.Cfg.Database.Name,
 	)
 
 	var err error

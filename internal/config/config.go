@@ -6,7 +6,7 @@ import (
 	"wx-miniprogram-backend/internal/log"
 )
 
-type DBConfig struct {
+type DatabaseConfig struct {
 	Host     string
 	Port     string
 	User     string
@@ -14,9 +14,15 @@ type DBConfig struct {
 	Name     string
 }
 
+type WeixinConfig struct {
+	AppId     string
+	AppSecret string
+}
+
 type Config struct {
-	DB         DBConfig
+	Database   DatabaseConfig
 	ServerPort string
+	Weixin     WeixinConfig
 }
 
 var Cfg Config
@@ -28,6 +34,8 @@ func init() {
 	DB_PASSWORD := os.Getenv("DB_PASSWORD")
 	DB_NAME := os.Getenv("DB_NAME")
 	SERVER_PORT := os.Getenv("SERVER_PORT")
+	WX_APP_ID := os.Getenv("WX_APP_ID")
+	WX_APP_SECRET := os.Getenv("WX_APP_SECRET")
 
 	if DB_HOST == "" {
 		log.Logger.Error().Msg("DB_HOST is required")
@@ -47,9 +55,15 @@ func init() {
 	if SERVER_PORT == "" {
 		SERVER_PORT = "8080"
 	}
+	if WX_APP_ID == "" {
+		log.Logger.Error().Msg("WX_APP_ID is required")
+	}
+	if WX_APP_SECRET == "" {
+		log.Logger.Error().Msg("WX_APP_SECRET is required")
+	}
 
 	Cfg = Config{
-		DB: DBConfig{
+		Database: DatabaseConfig{
 			Host:     DB_HOST,
 			Port:     DB_PORT,
 			User:     DB_USER,
@@ -57,5 +71,9 @@ func init() {
 			Name:     DB_NAME,
 		},
 		ServerPort: SERVER_PORT,
+		Weixin: WeixinConfig{
+			AppId:     WX_APP_ID,
+			AppSecret: WX_APP_SECRET,
+		},
 	}
 }
