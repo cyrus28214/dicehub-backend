@@ -32,6 +32,7 @@ run with your environment variables
 
 ```sh
 source .env
+set -a
 go run cmd/server/main.go
 ```
 
