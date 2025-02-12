@@ -49,3 +49,7 @@ set +a
 ```sh
 go run cmd/server/main.go
 ```
+
+## documentation
+
+[ApiFox](https://1twcm6hsj4.apifox.cn/)
