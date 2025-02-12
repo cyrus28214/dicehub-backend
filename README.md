@@ -30,11 +30,22 @@ WX_APP_SECRET= # required, 微信小程序的AppSecret
 JWT_SECRET= # required, you can use `openssl rand -base64 64` to generate a random string
 ```
 
-run with your environment variables
+1. load environment variables
 
 ```sh
 set -a
 source .env
 set +a
+```
+
+2. initialize database
+
+```sh
+./scripts/connect_db.sh -f internal/database/init.sql
+```
+
+3. run the server
+
+```sh
 go run cmd/server/main.go
 ```
