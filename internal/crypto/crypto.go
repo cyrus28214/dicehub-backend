@@ -36,7 +36,7 @@ func SignToken(Id int64) (string, error) {
 	return tokenString, nil
 }
 
-func VeifyToken(tokenString string) (*Claims, error) {
+func VerifyToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			err := fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
