@@ -9,10 +9,15 @@ import (
 var Logger zerolog.Logger
 
 func init() {
-	logLevelStr := os.Getenv("LOG_LEVEL")
-	logLevel, err := zerolog.ParseLevel(logLevelStr)
-	if err != nil {
+	LOG_LEVEL := os.Getenv("LOG_LEVEL")
+	var logLevel zerolog.Level
+	if LOG_LEVEL == "" {
 		logLevel = zerolog.InfoLevel
+	} else {
+		var err error
+		if logLevel, err = zerolog.ParseLevel(LOG_LEVEL); err != nil {
+			logLevel = zerolog.InfoLevel
+		}
 	}
 
 	logPath := os.Getenv("LOG_PATH")
