@@ -28,7 +28,7 @@ func SignToken(Id int64) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(config.Cfg.JwtSecret))
+	tokenString, err := token.SignedString(config.Cfg.JwtSecret)
 	if err != nil {
 		return "", err
 	}

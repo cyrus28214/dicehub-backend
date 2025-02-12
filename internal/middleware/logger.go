@@ -1,10 +1,13 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	"wx-miniprogram-backend/internal/log"
+
+	"github.com/rs/zerolog"
 )
 
 type responseWriter struct {
@@ -24,14 +27,16 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 	return size, err
 }
 
+const loggerKey contextKey = "logger"
+
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logger := log.Logger.With().Str("method", r.Method).Str("path", r.URL.Path).Logger()
+
 		start := time.Now()
 
 		// 记录请求开始
-		log.Logger.Info().
-			Str("method", r.Method).
-			Str("path", r.URL.Path).
+		logger.Info().
 			Str("remote_addr", r.RemoteAddr).
 			Str("user_agent", r.UserAgent()).
 			Msg("Request started")
@@ -43,18 +48,22 @@ func Logger(next http.Handler) http.Handler {
 		}
 
 		// 处理请求
-		next.ServeHTTP(wrapped, r)
+
+		ctx := context.WithValue(r.Context(), loggerKey, &logger)
+		next.ServeHTTP(wrapped, r.WithContext(ctx))
 
 		// 计算处理时间
 		duration := time.Since(start)
 
 		// 记录请求完成
-		log.Logger.Info().
-			Str("method", r.Method).
-			Str("path", r.URL.Path).
+		logger.Info().
 			Int("status", wrapped.status).
 			Int("size", wrapped.size).
 			Dur("duration", duration).
 			Msg("Request completed")
 	})
+}
+
+func GetLogger(r *http.Request) *zerolog.Logger {
+	return r.Context().Value(loggerKey).(*zerolog.Logger)
 }

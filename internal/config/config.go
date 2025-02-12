@@ -23,7 +23,7 @@ type Config struct {
 	Database   DatabaseConfig
 	ServerPort string
 	Weixin     WeixinConfig
-	JwtSecret  string
+	JwtSecret  []byte
 }
 
 var Cfg Config
@@ -80,6 +80,6 @@ func init() {
 			AppId:     WX_APP_ID,
 			AppSecret: WX_APP_SECRET,
 		},
-		JwtSecret: JWT_SECRET,
+		JwtSecret: []byte(JWT_SECRET),
 	}
 }

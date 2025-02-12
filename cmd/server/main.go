@@ -13,18 +13,23 @@ import (
 
 func main() {
 	// 连接数据库
+
+	log.Logger.Info().Msg("Connecting to database...")
+
 	database.Connect()
 	defer database.Close()
 
-	// 创建一个新的路由器
-	mux := http.NewServeMux()
+	authMux := http.NewServeMux()
+	authMux.HandleFunc("/api/profile", handler.ProfileHandler)
+	authHandler := middleware.Auth(authMux)
 
-	// 注册路由
-	mux.HandleFunc("/api/login", handler.LoginHandler)
-	mux.HandleFunc("/api/health", handler.HealthHandler)
+	logMux := http.NewServeMux()
+	logMux.HandleFunc("/api/login", handler.LoginHandler)
+	logMux.HandleFunc("/api/health", handler.HealthHandler)
+	logMux.Handle("/api/profile", authHandler)
+	logHandler := middleware.Logger(logMux)
 
-	// 创建带中间件的处理器
-	handler := middleware.Logger(mux)
+	handler := logHandler
 
 	serverAddr := fmt.Sprintf(":%s", config.Cfg.ServerPort)
 	log.Logger.Info().Msgf("Server starting on port %s...", config.Cfg.ServerPort)

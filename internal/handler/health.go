@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"wx-miniprogram-backend/internal/database"
-	"wx-miniprogram-backend/internal/log"
+	"wx-miniprogram-backend/internal/middleware"
 )
 
 type HealthResponse struct {
@@ -27,10 +27,12 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 		Timestamp: time.Now().Unix(),
 	}
 
+	logger := middleware.GetLogger(r)
+
 	// 检查数据库连接
 	err := database.DB.Ping()
 	if err != nil {
-		log.Logger.Error().Err(err).Msg("Database health check failed")
+		logger.Error().Err(err).Msg("Database health check failed")
 		response.Database = "error"
 		response.Status = "error"
 	}

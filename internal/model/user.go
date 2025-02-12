@@ -35,3 +35,19 @@ func FindOrCreateByOpenId(openId string) (*User, error) {
 
 	return &user, nil
 }
+
+func GetUserById(id int64) (*User, error) {
+	var user User
+	err := database.DB.Get(&user, `
+		SELECT id, openid, created_at, updated_at
+		FROM "user"
+		WHERE id = $1
+	`, id)
+
+	if err != nil {
+		log.Logger.Error().Err(err).Int64("id", id).Msg("Failed to get user by id")
+		return nil, err
+	}
+
+	return &user, nil
+}
