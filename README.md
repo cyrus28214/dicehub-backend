@@ -33,8 +33,9 @@ JWT_SECRET= # required, you can use `openssl rand -base64 64` to generate a rand
 run with your environment variables
 
 ```sh
-source .env
 set -a
+source .env
+set +a
 go run cmd/server/main.go
 ```
 
