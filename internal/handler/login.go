@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"wx-miniprogram-backend/internal/crypto"
 	"wx-miniprogram-backend/internal/log"
+	"wx-miniprogram-backend/internal/model"
 	"wx-miniprogram-backend/internal/weixin"
 )
 
@@ -13,8 +15,7 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	OpenId     string `json:"openid"`
-	SessionKey string `json:"session_key"`
+	Token string `json:"token"`
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,19 +32,37 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Code == "" {
+		log.Logger.Warn().Msg("Code is required")
 		http.Error(w, "Code is required", http.StatusBadRequest)
 		return
 	}
 
-	result, err := weixin.Code2Session(req.Code)
+	// 调用微信接口获取openid和session_key
+	wxResp, err := weixin.Code2Session(req.Code)
 	if err != nil {
+		log.Logger.Error().Err(err).Msg("Failed to get session from WeChat")
+		http.Error(w, "Login failed", http.StatusInternalServerError)
+		return
+	}
+
+	// 查找或创建用户
+	user, err := model.FindOrCreateByOpenId(wxResp.OpenId)
+	if err != nil {
+		log.Logger.Error().Err(err).Msg("Failed to find or create user")
+		http.Error(w, "Login failed", http.StatusInternalServerError)
+		return
+	}
+
+	// 生成JWT token
+	tokenString, err := crypto.SignToken(user.Id)
+	if err != nil {
+		log.Logger.Error().Err(err).Msg("Failed to generate token")
 		http.Error(w, "Login failed", http.StatusInternalServerError)
 		return
 	}
 
 	response := LoginResponse{
-		OpenId:     result.OpenId,
-		SessionKey: result.SessionKey,
+		Token: tokenString,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

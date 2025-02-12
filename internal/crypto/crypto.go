@@ -10,16 +10,16 @@ import (
 )
 
 type Claims struct {
-	OpenId string `json:"openid"`
+	Id int64 `json:"id"`
 	jwt.RegisteredClaims
 }
 
-func SignToken(openId string) (string, error) {
+func SignToken(Id int64) (string, error) {
 	// Token 过期时间设置为30天
 	expiresAt := time.Now().Add(30 * 24 * time.Hour)
 
 	claims := Claims{
-		OpenId: openId,
+		Id: Id,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -28,9 +28,8 @@ func SignToken(openId string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(config.Cfg.JwtSecret)
+	tokenString, err := token.SignedString([]byte(config.Cfg.JwtSecret))
 	if err != nil {
-		log.Logger.Error().Err(err).Msg("Failed to generate token")
 		return "", err
 	}
 
@@ -41,7 +40,6 @@ func VeifyToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			err := fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			log.Logger.Error().Err(err).Msg("Failed to verify token")
 			return nil, err
 		}
 		return config.Cfg.JwtSecret, nil
