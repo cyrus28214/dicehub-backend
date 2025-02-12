@@ -26,6 +26,8 @@ func main() {
 	logMux := http.NewServeMux()
 	logMux.HandleFunc("/api/login", handler.LoginHandler)
 	logMux.HandleFunc("/api/health", handler.HealthHandler)
+	logMux.HandleFunc("/api/games", handler.ListGamesHandler)
+	logMux.HandleFunc("/api/game", handler.GetGameHandler)
 	logMux.Handle("/api/profile", authHandler)
 	logHandler := middleware.Logger(logMux)
 

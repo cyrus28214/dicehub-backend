@@ -19,12 +19,12 @@ func FindOrCreateByOpenId(openId string) (*User, error) {
 	var user User
 
 	err := database.DB.Get(&user, `
-		INSERT INTO "user" (openid)
-		VALUES ($1)
-		ON CONFLICT (openid) DO UPDATE
-		  SET updated_at = NOW()
-		RETURNING id, openid, created_at, updated_at
-	`, openId)
+        insert into "user" (openid)
+        values ($1)
+        on conflict (openid) do update
+          set updated_at = now()
+        returning id, openid, created_at, updated_at
+    `, openId)
 
 	if err != nil {
 		log.Logger.Error().Err(err).Str("openid", openId).Msg("Failed to find or create user")
@@ -39,10 +39,10 @@ func FindOrCreateByOpenId(openId string) (*User, error) {
 func GetUserById(id int64) (*User, error) {
 	var user User
 	err := database.DB.Get(&user, `
-		SELECT id, openid, created_at, updated_at
-		FROM "user"
-		WHERE id = $1
-	`, id)
+        select id, openid, created_at, updated_at
+        from "user"
+        where id = $1
+    `, id)
 
 	if err != nil {
 		log.Logger.Error().Err(err).Int64("id", id).Msg("Failed to get user by id")
