@@ -19,6 +19,13 @@ func ListGamesHandler(w http.ResponseWriter, r *http.Request) {
 
 	logger := middleware.GetLogger(r)
 
+	// 获取用户ID
+	userId, ok := middleware.GetUserID(r)
+	if !ok {
+		logger.Warn().Msg("User ID is not set")
+		userId = 0
+	}
+
 	// 解析标签过滤参数
 	tagIds := r.URL.Query().Get("tagIds") // tagIds 以逗号分隔
 	var tagIdsList []int64
@@ -36,7 +43,7 @@ func ListGamesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info().Interface("tagIdsList", tagIdsList).Msg("tagIdsList")
 
-	games, err := model.GetGames(tagIdsList)
+	games, err := model.GetGames(tagIdsList, userId)
 	if err != nil {
 		logger.Error().Err(err).Msg("Failed to get games")
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -56,6 +63,13 @@ func GetGameHandler(w http.ResponseWriter, r *http.Request) {
 
 	logger := middleware.GetLogger(r)
 
+	// 获取用户ID
+	userId, ok := middleware.GetUserID(r)
+	if !ok {
+		logger.Warn().Msg("User ID is not set")
+		userId = 0
+	}
+
 	// 从URL中获取游戏ID
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
@@ -69,7 +83,7 @@ func GetGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	game, err := model.GetGameById(id)
+	game, err := model.GetGameById(id, userId)
 	if err != nil {
 		logger.Error().Err(err).Int64("id", id).Msg("Failed to get game")
 		http.Error(w, "Game not found", http.StatusNotFound)

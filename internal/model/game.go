@@ -16,30 +16,34 @@ type Game struct {
 	Rating      float64   `db:"rating" json:"rating"`
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
+	LikesCount  int       `db:"likes_count" json:"likes_count"`
 }
 
-type GameWithTags struct {
+type GamDetail struct {
 	Game
-	Tags TagArray `db:"tags" json:"tags"`
+	Tags  TagArray `db:"tags" json:"tags"`
+	Liked bool     `db:"liked" json:"liked"`
 }
 
 // GetGames 获取游戏列表，支持标签过滤
-func GetGames(tagIds pq.Int64Array) ([]GameWithTags, error) {
-	var games []GameWithTags
+// 用户没登录就是id = 0，此时liked = false
+func GetGames(tagIds pq.Int64Array, userId int64) ([]GamDetail, error) {
+	var games []GamDetail
 	var query string
 
 	if len(tagIds) == 0 {
-		// 如果没有指定标签，获取所有游戏
 		query = `
-            select 
+            SELECT 
                 g.*,
-                json_agg(t) as tags
-            from game g
-            left join game_tag_relation gt on g.id = gt.game_id
-            left join tag t on gt.tag_id = t.id
-            group by g.id
+                json_agg(t) as tags,
+                CASE WHEN count(l.user_id) > 0 THEN true ELSE false END as liked
+            FROM game g
+            LEFT JOIN game_tag_relation gt ON g.id = gt.game_id
+            LEFT JOIN tag t ON gt.tag_id = t.id
+            LEFT JOIN "like" l ON g.id = l.game_id AND l.user_id = $1
+            GROUP BY g.id
         `
-		err := database.DB.Select(&games, query)
+		err := database.DB.Select(&games, query, userId)
 		if err != nil {
 			return nil, err
 		}
@@ -49,39 +53,42 @@ func GetGames(tagIds pq.Int64Array) ([]GameWithTags, error) {
 
 	// 如果指定了标签，通过标签过滤游戏
 	query = `
-		SELECT 
-			g.*,
-			json_agg(t) as tags
-		FROM game g
-		LEFT JOIN game_tag_relation gt ON g.id = gt.game_id
-		LEFT JOIN tag t ON gt.tag_id = t.id
-		GROUP BY g.id
-		HAVING array_agg(t.id) @> $1;
+        SELECT 
+            g.*,
+            json_agg(t) as tags,
+            CASE WHEN count(l.user_id) > 0 THEN true ELSE false END as liked
+        FROM game g
+        LEFT JOIN game_tag_relation gt ON g.id = gt.game_id
+        LEFT JOIN tag t ON gt.tag_id = t.id
+        LEFT JOIN "like" l ON g.id = l.game_id AND l.user_id = $1
+        GROUP BY g.id
+        HAVING array_agg(t.id) @> $2
     `
-	err := database.DB.Select(&games, query, tagIds)
+	err := database.DB.Select(&games, query, userId, tagIds)
 	if err != nil {
 		return nil, err
 	}
 
 	return games, nil
-
 }
 
 // GetGameById 根据ID获取游戏详情
-func GetGameById(id int64) (*GameWithTags, error) {
+func GetGameById(id int64, userId int64) (*GamDetail, error) {
 	query := `
-        select 
+        SELECT 
             g.*,
-            json_agg(t) as tags
-        from game g
-        left join game_tag_relation gt on g.id = gt.game_id
-        left join tag t on gt.tag_id = t.id
-        where g.id = $1
-        group by g.id
+            json_agg(t) as tags,
+            CASE WHEN count(l.user_id) > 0 THEN true ELSE false END as liked
+        FROM game g
+        LEFT JOIN game_tag_relation gt ON g.id = gt.game_id
+        LEFT JOIN tag t ON gt.tag_id = t.id
+        LEFT JOIN "like" l ON g.id = l.game_id AND l.user_id = $2
+        WHERE g.id = $1
+        GROUP BY g.id
     `
 
-	var game GameWithTags
-	err := database.DB.Get(&game, query, id)
+	var game GamDetail
+	err := database.DB.Get(&game, query, id, userId)
 	if err != nil {
 		return nil, err
 	}

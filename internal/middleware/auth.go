@@ -9,8 +9,6 @@ import (
 	"wx-miniprogram-backend/internal/log"
 )
 
-type contextKey string
-
 const UserIdKey contextKey = "user_id"
 
 // Auth 验证JWT token并将用户ID注入到context中

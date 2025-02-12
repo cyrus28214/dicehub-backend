@@ -19,24 +19,52 @@ func main() {
 	database.Connect()
 	defer database.Close()
 
-	authMux := http.NewServeMux()
-	authMux.HandleFunc("/api/profile", handler.ProfileHandler)
-	authHandler := middleware.Auth(authMux)
+	mux := http.NewServeMux()
 
-	logMux := http.NewServeMux()
-	logMux.HandleFunc("/api/login", handler.LoginHandler)
-	logMux.HandleFunc("/api/health", handler.HealthHandler)
-	logMux.HandleFunc("/api/games", handler.ListGamesHandler)
-	logMux.HandleFunc("/api/game", handler.GetGameHandler)
-	logMux.Handle("/api/profile", authHandler)
-	logHandler := middleware.Logger(logMux)
+	mux.Handle("/api/health", middleware.Use(
+		http.HandlerFunc(handler.HealthHandler),
+		middleware.Logger,
+	))
 
-	handler := logHandler
+	mux.Handle("/api/profile", middleware.Use(
+		http.HandlerFunc(handler.ProfileHandler),
+		middleware.Logger,
+		middleware.Auth,
+	))
+
+	mux.Handle("/api/game/like", middleware.Use(
+		http.HandlerFunc(handler.LikeGameHandler),
+		middleware.Logger,
+		middleware.Auth,
+	))
+
+	mux.Handle("/api/game/unlike", middleware.Use(
+		http.HandlerFunc(handler.UnlikeGameHandler),
+		middleware.Logger,
+		middleware.Auth,
+	))
+
+	mux.Handle("/api/login", middleware.Use(
+		http.HandlerFunc(handler.LoginHandler),
+		middleware.Logger,
+	))
+
+	mux.Handle("/api/games", middleware.Use(
+		http.HandlerFunc(handler.ListGamesHandler),
+		middleware.Logger,
+		middleware.Auth,
+	))
+
+	mux.Handle("/api/game", middleware.Use(
+		http.HandlerFunc(handler.GetGameHandler),
+		middleware.Logger,
+		middleware.Auth,
+	))
 
 	serverAddr := fmt.Sprintf(":%s", config.Cfg.ServerPort)
 	log.Logger.Info().Msgf("Server starting on port %s...", config.Cfg.ServerPort)
 
-	if err := http.ListenAndServe(serverAddr, handler); err != nil {
+	if err := http.ListenAndServe(serverAddr, mux); err != nil {
 		log.Logger.Fatal().Err(err).Msg("Server failed to start")
 	}
 }

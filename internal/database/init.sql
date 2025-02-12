@@ -1,4 +1,4 @@
-drop table if exists "user";
+drop table if exists "user" cascade;
 create table "user" (
     id serial primary key,
     openid varchar(256) not null unique,
@@ -6,18 +6,19 @@ create table "user" (
     updated_at timestamptz default current_timestamp
 );
 
-drop table if exists "game";
+drop table if exists "game" cascade;
 create table "game" (
     id serial primary key,
     "name" varchar(100) not null,
     description text,
     image text,
     rating float,
+    likes_count int default 0,
     created_at timestamptz default current_timestamp,
     updated_at timestamptz default current_timestamp
 );
 
-drop table if exists "tag";
+drop table if exists "tag" cascade;
 create table "tag" (
     id serial primary key,
     "name" varchar(100) not null,
@@ -27,7 +28,7 @@ create table "tag" (
     updated_at timestamptz default current_timestamp
 );
 
-drop table if exists "game_tag_relation";
+drop table if exists "game_tag_relation" cascade;
 create table "game_tag_relation" (
     game_id int,
     tag_id int,
@@ -36,6 +37,17 @@ create table "game_tag_relation" (
     foreign key (tag_id) references tag(id),
     created_at timestamptz default current_timestamp,
     updated_at timestamptz default current_timestamp
+);
+
+drop table if exists "like" cascade;
+create table "like" (
+    user_id int not null,
+    game_id int not null,
+    created_at timestamptz default current_timestamp,
+    updated_at timestamptz default current_timestamp,
+    primary key (user_id, game_id),
+    foreign key (user_id) references "user"(id),
+    foreign key (game_id) references game(id)
 );
 
 -- 插入游戏标签
@@ -66,22 +78,22 @@ insert into tag (name, description) values
     ('战棋', '需要玩家通过战略和战术规划的游戏类型');
 
 -- 插入游戏数据
-insert into game (name, description, image, rating) values
-    ('阿瓦隆', '正义与邪恶阵营对抗的社交推理游戏，通过投票完成任务决定胜负。', 'https://pic1.imgdb.cn/item/679b7bb9d0e0a243d4f8b0e4.jpg', 9.2),
-    ('狼人杀', '狼人隐藏身份猎杀村民，村民通过推理找出狼人的社交游戏。', 'https://pic1.imgdb.cn/item/67ab9736d0e0a243d4fe75a5.jpg', 8.8),
-    ('uno', '经典的卡牌配对游戏，通过出牌干扰对手，最先出完手牌获胜。', 'https://pic1.imgdb.cn/item/67ab9693d0e0a243d4fe7596.jpg', 8.5),
-    ('卡坦岛', '在岛屿上收集资源、建设城市的策略游戏，需要合理规划和交易。', 'https://pic1.imgdb.cn/item/67ab9693d0e0a243d4fe7595.jpg', 9.3),
-    ('达芬奇密码', '通过推理和逻辑找出对手密码排列的益智游戏。', 'https://pic1.imgdb.cn/item/67ab9735d0e0a243d4fe75a1.jpg', 8.6),
-    ('卡卡颂', '通过放置地形卡牌建造中世纪城堡和道路的策略游戏。', 'https://pic1.imgdb.cn/item/67ab9736d0e0a243d4fe75a4.jpg', 9.0),
-    ('谁是牛头人', '一款充满欢乐的吹牛与识破游戏，玩家需要在虚实之间找到平衡。', 'https://pic1.imgdb.cn/item/67ab977ed0e0a243d4fe75a8.jpg', 8.7),
-    ('山屋惊魂', '在恐怖氛围中寻找线索，揭示真相的剧情推理游戏。', 'https://pic1.imgdb.cn/item/67ab977ed0e0a243d4fe75ab.jpg', 9.1),
-    ('德国心脏病', '快节奏的图案匹配游戏，考验反应速度和观察力。', 'https://pic1.imgdb.cn/item/67ab9735d0e0a243d4fe75a3.jpg', 8.4),
-    ('三国杀', '以三国为背景的卡牌对战游戏，玩家扮演不同的三国角色进行对抗。', 'https://pic1.imgdb.cn/item/67ab977ed0e0a243d4fe75aa.jpg', 8.9),
-    ('怒海求生', '在沉船场景中合作逃生，随机事件带来紧张刺激的体验。', 'https://pic1.imgdb.cn/item/67ab977ed0e0a243d4fe75a9.jpg', 9.2),
-    ('大富翁', '经典的房地产交易与投资游戏，体验商业竞争的乐趣。', 'https://pic1.imgdb.cn/item/67ab9735d0e0a243d4fe75a2.jpg', 8.5),
-    ('龙与地下城', '在奇幻世界中冒险的角色扮演桌游，体验史诗般的故事。', 'https://pic1.imgdb.cn/item/67ab9693d0e0a243d4fe7594.jpg', 9.3),
-    ('克苏鲁的呼唤', '在神秘的克苏鲁世界中探索，揭露隐藏的真相。', 'https://pic1.imgdb.cn/item/67ab9692d0e0a243d4fe7593.jpg', 8.7),
-    ('战锤40k', '指挥遥远黑暗的四十个千年之后的军队，为人类二战。', 'https://pic1.imgdb.cn/item/67ab9692d0e0a243d4fe7592.jpg', 8.7);
+insert into game (name, description, image, rating, likes_count) values
+    ('阿瓦隆', '正义与邪恶阵营对抗的社交推理游戏，通过投票完成任务决定胜负。', 'https://pic1.imgdb.cn/item/679b7bb9d0e0a243d4f8b0e4.jpg', 9.2, 2348),
+    ('狼人杀', '狼人隐藏身份猎杀村民，村民通过推理找出狼人的社交游戏。', 'https://pic1.imgdb.cn/item/67ab9736d0e0a243d4fe75a5.jpg', 8.8, 7623),
+    ('uno', '经典的卡牌配对游戏，通过出牌干扰对手，最先出完手牌获胜。', 'https://pic1.imgdb.cn/item/67ab9693d0e0a243d4fe7596.jpg', 8.5, 4521),
+    ('卡坦岛', '在岛屿上收集资源、建设城市的策略游戏，需要合理规划和交易。', 'https://pic1.imgdb.cn/item/67ab9693d0e0a243d4fe7595.jpg', 9.3, 3876),
+    ('达芬奇密码', '通过推理和逻辑找出对手密码排列的益智游戏。', 'https://pic1.imgdb.cn/item/67ab9735d0e0a243d4fe75a1.jpg', 8.6, 1892),
+    ('卡卡颂', '通过放置地形卡牌建造中世纪城堡和道路的策略游戏。', 'https://pic1.imgdb.cn/item/67ab9736d0e0a243d4fe75a4.jpg', 9.0, 2967),
+    ('谁是牛头人', '一款充满欢乐的吹牛与识破游戏，玩家需要在虚实之间找到平衡。', 'https://pic1.imgdb.cn/item/67ab977ed0e0a243d4fe75a8.jpg', 8.7, 1543),
+    ('山屋惊魂', '在恐怖氛围中寻找线索，揭示真相的剧情推理游戏。', 'https://pic1.imgdb.cn/item/67ab977ed0e0a243d4fe75ab.jpg', 9.1, 986),
+    ('德国心脏病', '快节奏的图案匹配游戏，考验反应速度和观察力。', 'https://pic1.imgdb.cn/item/67ab9735d0e0a243d4fe75a3.jpg', 8.4, 3254),
+    ('三国杀', '以三国为背景的卡牌对战游戏，玩家扮演不同的三国角色进行对抗。', 'https://pic1.imgdb.cn/item/67ab977ed0e0a243d4fe75aa.jpg', 8.9, 8965),
+    ('怒海求生', '在沉船场景中合作逃生，随机事件带来紧张刺激的体验。', 'https://pic1.imgdb.cn/item/67ab977ed0e0a243d4fe75a9.jpg', 9.2, 1234),
+    ('大富翁', '经典的房地产交易与投资游戏，体验商业竞争的乐趣。', 'https://pic1.imgdb.cn/item/67ab9735d0e0a243d4fe75a2.jpg', 8.5, 4567),
+    ('龙与地下城', '在奇幻世界中冒险的角色扮演桌游，体验史诗般的故事。', 'https://pic1.imgdb.cn/item/67ab9693d0e0a243d4fe7594.jpg', 9.3, 3421),
+    ('克苏鲁的呼唤', '在神秘的克苏鲁世界中探索，揭露隐藏的真相。', 'https://pic1.imgdb.cn/item/67ab9692d0e0a243d4fe7593.jpg', 8.7, 2789),
+    ('战锤40k', '指挥遥远黑暗的四十个千年之后的军队，为人类二战。', 'https://pic1.imgdb.cn/item/67ab9692d0e0a243d4fe7592.jpg', 8.7, 1678);
 
 -- 插入游戏和标签的关联关系
 insert into game_tag_relation (game_id, tag_id) 
