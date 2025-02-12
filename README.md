@@ -26,6 +26,8 @@ LOG_LEVEL= # optional, default is info
 
 WX_APP_ID= # required, 微信小程序的AppID
 WX_APP_SECRET= # required, 微信小程序的AppSecret
+
+JWT_SECRET= # required, you can use `openssl rand -base64 64` to generate a random string
 ```
 
 run with your environment variables

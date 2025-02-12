@@ -23,6 +23,7 @@ type Config struct {
 	Database   DatabaseConfig
 	ServerPort string
 	Weixin     WeixinConfig
+	JwtSecret  string
 }
 
 var Cfg Config
@@ -36,6 +37,7 @@ func init() {
 	SERVER_PORT := os.Getenv("SERVER_PORT")
 	WX_APP_ID := os.Getenv("WX_APP_ID")
 	WX_APP_SECRET := os.Getenv("WX_APP_SECRET")
+	JWT_SECRET := os.Getenv("JWT_SECRET")
 
 	if DB_HOST == "" {
 		log.Logger.Fatal().Msg("DB_HOST is required")
@@ -61,6 +63,9 @@ func init() {
 	if WX_APP_SECRET == "" {
 		log.Logger.Fatal().Msg("WX_APP_SECRET is required")
 	}
+	if JWT_SECRET == "" {
+		log.Logger.Fatal().Msg("JWT_SECRET is required")
+	}
 
 	Cfg = Config{
 		Database: DatabaseConfig{
@@ -75,5 +80,6 @@ func init() {
 			AppId:     WX_APP_ID,
 			AppSecret: WX_APP_SECRET,
 		},
+		JwtSecret: JWT_SECRET,
 	}
 }
