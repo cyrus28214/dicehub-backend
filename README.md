@@ -38,25 +38,3 @@ source .env
 set +a
 go run cmd/server/main.go
 ```
-
-## API
-
-### 登录
-
-POST /api/login
-
-请求体：
-```json
-{
-    "code": "wx.login()获取的code"
-}
-```
-
-响应：
-```json
-{
-    "openid": "用户唯一标识",
-    "session_key": "会话密钥"
-}
-```
-
