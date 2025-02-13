@@ -15,7 +15,8 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Token string `json:"token"`
+	Token  string `json:"token"`
+	OpenId string `json:"openId"`
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +65,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := LoginResponse{
-		Token: tokenString,
+		Token:  tokenString,
+		OpenId: user.OpenId,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
