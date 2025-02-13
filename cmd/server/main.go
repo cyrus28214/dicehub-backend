@@ -61,6 +61,11 @@ func main() {
 		middleware.Auth,
 	))
 
+	mux.Handle("/api/tags", middleware.Use(
+		http.HandlerFunc(handler.GetTagsHandler),
+		middleware.Logger,
+	))
+
 	serverAddr := fmt.Sprintf(":%s", config.Cfg.ServerPort)
 	log.Logger.Info().Msgf("Server starting on port %s...", config.Cfg.ServerPort)
 

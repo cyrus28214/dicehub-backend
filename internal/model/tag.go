@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"time"
+	"wx-miniprogram-backend/internal/database"
 	"wx-miniprogram-backend/internal/log"
 )
 
@@ -11,7 +12,7 @@ type Tag struct {
 	Id          int64     `db:"id" json:"id"`
 	Name        string    `db:"name" json:"name"`
 	Description string    `db:"description" json:"description"`
-	Image       string    `db:"image" json:"image"`
+	Image       *string   `db:"image" json:"image"`
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
 }
@@ -48,4 +49,10 @@ func (t *TagArray) Scan(value any) error {
 
 	*t = tags
 	return nil
+}
+
+func GetTags() ([]Tag, error) {
+	var tags []Tag
+	err := database.DB.Select(&tags, "SELECT * FROM tag")
+	return tags, err
 }
