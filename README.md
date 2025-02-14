@@ -13,6 +13,10 @@ go mod tidy
 create `.env` file and set your environment variables
 
 ```sh
+BASE_URL # required
+
+UPLOAD_DIR= # optional, default is `uploads`
+
 DB_HOST= # required
 DB_PORT= # required
 DB_USER= # required

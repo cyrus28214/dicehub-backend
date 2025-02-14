@@ -37,13 +37,15 @@ func (u *UserFromJson) Scan(value any) error {
 func FindOrCreateByOpenId(openId string) (*User, error) {
 	var user User
 
+	name := "用户" + openId[:6]
+
 	err := database.DB.Get(&user, `
-        insert into "user" (openid)
-        values ($1)
+        insert into "user" (openid, name)
+        values ($1, $2)
         on conflict (openid) do update
           set updated_at = now()
         returning *
-    `, openId)
+    `, openId, name)
 
 	if err != nil {
 		return nil, err
@@ -70,29 +72,49 @@ func GetUserById(id int64) (*User, error) {
 	return &user, nil
 }
 
-// update name and avatar
-func UpdateUser(userId int64, avatar string, name string) error {
-	if avatar != "" {
-		_, err := database.DB.Exec(`
-			update "user"
-			set avatar = $1
-			where id = $2
-		`, avatar, userId)
-		if err != nil {
-			return err
-		}
-	}
+// // update name and avatar
+// func UpdateUser(userId int64, avatar string, name string) error {
+// 	if avatar != "" {
+// 		_, err := database.DB.Exec(`
+// 			update "user"
+// 			set avatar = $1
+// 			where id = $2
+// 		`, avatar, userId)
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
 
-	if name != "" {
-		_, err := database.DB.Exec(`
-			update "user"
-			set name = $1
-			where id = $2
-		`, name, userId)
-		if err != nil {
-			return err
-		}
-	}
+// 	if name != "" {
+// 		_, err := database.DB.Exec(`
+// 			update "user"
+// 			set name = $1
+// 			where id = $2
+// 		`, name, userId)
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
 
-	return nil
+// 	return nil
+// }
+
+func UpdateUserName(userId int64, name string) error {
+	_, err := database.DB.Exec(`
+		update "user"
+		set name = $1
+		where id = $2
+	`, name, userId)
+
+	return err
+}
+
+func UpdateUserAvatar(userId int64, avatar string) error {
+	_, err := database.DB.Exec(`
+		update "user"
+		set avatar = $1
+		where id = $2
+	`, avatar, userId)
+
+	return err
 }

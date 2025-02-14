@@ -19,7 +19,14 @@ func main() {
 	database.Connect()
 	defer database.Close()
 
+	fileServer := http.FileServer(http.Dir(config.Cfg.UploadDir))
+
 	mux := http.NewServeMux()
+
+	mux.Handle("GET /uploads/", middleware.Use(
+		http.StripPrefix("/uploads", fileServer),
+		middleware.Logger,
+	))
 
 	mux.Handle("GET /api/health", middleware.Use(
 		http.HandlerFunc(handler.HealthHandler),
@@ -32,8 +39,14 @@ func main() {
 		middleware.Auth,
 	))
 
-	mux.Handle("POST /api/profile", middleware.Use(
-		http.HandlerFunc(handler.UpdateProfileHandler),
+	mux.Handle("POST /api/profile/name", middleware.Use(
+		http.HandlerFunc(handler.UpdateUserNameHandler),
+		middleware.Logger,
+		middleware.Auth,
+	))
+
+	mux.Handle("POST /api/profile/avatar", middleware.Use(
+		http.HandlerFunc(handler.UploadAvatarHandler),
 		middleware.Logger,
 		middleware.Auth,
 	))

@@ -20,6 +20,8 @@ type WeixinConfig struct {
 }
 
 type Config struct {
+	BaseUrl    string
+	UploadDir  string
 	Database   DatabaseConfig
 	ServerPort string
 	Weixin     WeixinConfig
@@ -29,6 +31,8 @@ type Config struct {
 var Cfg Config
 
 func init() {
+	BASE_URL := os.Getenv("BASE_URL")
+	UPLOAD_DIR := os.Getenv("UPLOAD_DIR")
 	DB_HOST := os.Getenv("DB_HOST")
 	DB_PORT := os.Getenv("DB_PORT")
 	DB_USER := os.Getenv("DB_USER")
@@ -39,6 +43,12 @@ func init() {
 	WX_APP_SECRET := os.Getenv("WX_APP_SECRET")
 	JWT_SECRET := os.Getenv("JWT_SECRET")
 
+	if BASE_URL == "" {
+		log.Logger.Fatal().Msg("BASE_URL is required")
+	}
+	if UPLOAD_DIR == "" {
+		UPLOAD_DIR = "uploads"
+	}
 	if DB_HOST == "" {
 		log.Logger.Fatal().Msg("DB_HOST is required")
 	}
@@ -68,6 +78,8 @@ func init() {
 	}
 
 	Cfg = Config{
+		BaseUrl:   BASE_URL,
+		UploadDir: UPLOAD_DIR,
 		Database: DatabaseConfig{
 			Host:     DB_HOST,
 			Port:     DB_PORT,
