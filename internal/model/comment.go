@@ -8,14 +8,14 @@ import (
 )
 
 type Comment struct {
-	Id        int64     `db:"id" json:"id"`
-	UserId    int64     `db:"user_id" json:"user_id"`
-	GameId    int64     `db:"game_id" json:"game_id"`
-	Content   string    `db:"content" json:"content"`
-	Rating    float64   `db:"rating" json:"rating"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
-	User      *User     `db:"user" json:"user,omitempty"`
+	Id        int64        `db:"id" json:"id"`
+	UserId    int64        `db:"user_id" json:"user_id"`
+	GameId    int64        `db:"game_id" json:"game_id"`
+	Content   string       `db:"content" json:"content"`
+	Rating    float64      `db:"rating" json:"rating"`
+	CreatedAt time.Time    `db:"created_at" json:"created_at"`
+	UpdatedAt time.Time    `db:"updated_at" json:"updated_at"`
+	User      UserFromJson `db:"user" json:"user,omitempty"`
 }
 
 // CreateComment 创建评论

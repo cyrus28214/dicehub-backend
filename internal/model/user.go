@@ -16,7 +16,9 @@ type User struct {
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
 
-func (u *User) Scan(value any) error {
+type UserFromJson User
+
+func (u *UserFromJson) Scan(value any) error {
 	if value == nil {
 		return nil
 	}
@@ -38,11 +40,10 @@ func FindOrCreateByOpenId(openId string) (*User, error) {
         values ($1)
         on conflict (openid) do update
           set updated_at = now()
-        returning id, openid, created_at, updated_at
+        returning *
     `, openId)
 
 	if err != nil {
-		log.Logger.Error().Err(err).Str("openid", openId).Msg("Failed to find or create user")
 		return nil, err
 	}
 
