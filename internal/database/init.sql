@@ -50,6 +50,39 @@ create table "like" (
     foreign key (game_id) references game(id)
 );
 
+-- 添加评论表
+drop table if exists "comment" cascade;
+create table "comment" (
+    id serial primary key,
+    user_id int not null,
+    game_id int not null,
+    content text not null,
+    rating float not null check (rating >= 0 and rating <= 10),
+    created_at timestamptz default current_timestamp,
+    updated_at timestamptz default current_timestamp,
+    foreign key (user_id) references "user"(id),
+    foreign key (game_id) references game(id)
+);
+
+-- 添加触发器更新游戏的平均评分
+create or replace function update_game_rating()
+returns trigger as $$
+begin
+    update game
+    set rating = (
+        select avg(rating)
+        from "comment"
+        where game_id = new.game_id
+    )
+    where id = new.game_id;
+    return new;
+end;
+$$ language plpgsql;
+
+create trigger update_game_rating_trigger
+after insert or update or delete on "comment"
+for each row execute function update_game_rating();
+
 -- 插入游戏标签
 insert into tag (id, name, description) values
     (1, '推理', '蛛丝马迹间的真相博弈，下一个福尔摩斯就是你'),

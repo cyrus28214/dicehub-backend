@@ -10,11 +10,6 @@ import (
 
 // LikeGameHandler 处理游戏点赞
 func LikeGameHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	logger := middleware.GetLogger(r)
 
 	// 获取用户ID
@@ -68,10 +63,6 @@ func LikeGameHandler(w http.ResponseWriter, r *http.Request) {
 
 // UnlikeGameHandler 处理取消点赞
 func UnlikeGameHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	logger := middleware.GetLogger(r)
 

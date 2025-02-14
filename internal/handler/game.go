@@ -12,10 +12,6 @@ import (
 
 // ListGamesHandler 获取游戏列表
 func ListGamesHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	logger := middleware.GetLogger(r)
 
@@ -56,10 +52,6 @@ func ListGamesHandler(w http.ResponseWriter, r *http.Request) {
 
 // GetGameHandler 获取游戏详情
 func GetGameHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	logger := middleware.GetLogger(r)
 

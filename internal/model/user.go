@@ -1,6 +1,8 @@
 package model
 
 import (
+	"encoding/json"
+	"errors"
 	"time"
 
 	"wx-miniprogram-backend/internal/database"
@@ -12,6 +14,19 @@ type User struct {
 	OpenId    string    `db:"openid" json:"openid"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+}
+
+func (u *User) Scan(value any) error {
+	if value == nil {
+		return nil
+	}
+
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("value is not a byte slice")
+	}
+
+	return json.Unmarshal(bytes, u)
 }
 
 // FindOrCreateByOpenId 通过openid查找用户，如果不存在则创建
