@@ -12,6 +12,8 @@ import (
 type User struct {
 	Id        int64     `db:"id" json:"id"`
 	OpenId    string    `db:"openid" json:"openid"`
+	Name      *string   `db:"name" json:"name"`
+	Avatar    *string   `db:"avatar" json:"avatar"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
@@ -55,7 +57,7 @@ func FindOrCreateByOpenId(openId string) (*User, error) {
 func GetUserById(id int64) (*User, error) {
 	var user User
 	err := database.DB.Get(&user, `
-        select id, openid, created_at, updated_at
+        select *
         from "user"
         where id = $1
     `, id)
@@ -66,4 +68,31 @@ func GetUserById(id int64) (*User, error) {
 	}
 
 	return &user, nil
+}
+
+// update name and avatar
+func UpdateUser(userId int64, avatar string, name string) error {
+	if avatar != "" {
+		_, err := database.DB.Exec(`
+			update "user"
+			set avatar = $1
+			where id = $2
+		`, avatar, userId)
+		if err != nil {
+			return err
+		}
+	}
+
+	if name != "" {
+		_, err := database.DB.Exec(`
+			update "user"
+			set name = $1
+			where id = $2
+		`, name, userId)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

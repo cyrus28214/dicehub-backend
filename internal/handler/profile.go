@@ -8,11 +8,6 @@ import (
 	"wx-miniprogram-backend/internal/model"
 )
 
-type ProfileResponse struct {
-	Id     int64  `json:"id"`
-	OpenId string `json:"openid"`
-}
-
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
 	logger := middleware.GetLogger(r)
@@ -29,13 +24,42 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := ProfileResponse{
-		Id:     user.Id,
-		OpenId: user.OpenId,
-	}
-
 	logger.Info().Interface("user", user).Msg("user")
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(user)
+}
+
+func UpdateProfileHandler(w http.ResponseWriter, r *http.Request) {
+
+	logger := middleware.GetLogger(r)
+
+	userId, ok := middleware.GetUserID(r)
+
+	if !ok {
+		logger.Error().Msg("User not found")
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	var request struct {
+		Avatar string `json:"avatar"`
+		Name   string `json:"name"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to decode request body")
+		http.Error(w, "Failed to decode request body", http.StatusBadRequest)
+		return
+	}
+
+	err = model.UpdateUser(userId, request.Avatar, request.Name)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to update user")
+		http.Error(w, "Failed to update user", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

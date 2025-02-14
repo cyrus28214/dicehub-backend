@@ -2,6 +2,8 @@ drop table if exists "user" cascade;
 create table "user" (
     id serial primary key,
     openid varchar(256) not null unique,
+    name varchar(100),
+    avatar text,
     created_at timestamptz default current_timestamp,
     updated_at timestamptz default current_timestamp
 );

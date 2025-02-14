@@ -32,6 +32,12 @@ func main() {
 		middleware.Auth,
 	))
 
+	mux.Handle("POST /api/profile", middleware.Use(
+		http.HandlerFunc(handler.UpdateProfileHandler),
+		middleware.Logger,
+		middleware.Auth,
+	))
+
 	mux.Handle("POST /api/game/like", middleware.Use(
 		http.HandlerFunc(handler.LikeGameHandler),
 		middleware.Logger,
