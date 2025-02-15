@@ -21,7 +21,7 @@ type TagArray []Tag
 
 func (t *TagArray) Scan(value any) error {
 	if value == nil {
-		*t = nil
+		*t = []Tag{}
 		return nil
 	}
 
@@ -32,17 +32,19 @@ func (t *TagArray) Scan(value any) error {
 		return errors.New("failed to unmarshal Tags value")
 	}
 
-	// 去除可能的首尾括号（PostgreSQL array_agg 函数可能会添加）
+	log.Logger.Debug().Str("bytes", string(bytes)).Msg("tags")
+
 	str := string(bytes)
 
-	if str == "" {
-		*t = nil
+	if str == "" || str == "[null]" {
+		*t = []Tag{}
 		return nil
 	}
 
 	// 解析 JSON 字符串
 	var tags []Tag
 	if err := json.Unmarshal([]byte(str), &tags); err != nil {
+		log.Logger.Debug().Str("str", str).Msg("tags")
 		log.Logger.Error().Err(err).Msgf("failed to unmarshal Tags: %v", err)
 		return err
 	}

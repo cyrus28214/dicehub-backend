@@ -37,7 +37,7 @@ func (u *UserFromJson) Scan(value any) error {
 func FindOrCreateByOpenId(openId string) (*User, error) {
 	var user User
 
-	name := "用户" + openId[:6]
+	name := "用户" + openId[len(openId)-6:]
 
 	err := database.DB.Get(&user, `
         insert into "user" (openid, name)

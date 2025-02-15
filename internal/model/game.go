@@ -20,7 +20,7 @@ type Game struct {
 	ExtraInfo   *string   `db:"extra_info" json:"extra_info"`
 }
 
-type GamDetail struct {
+type GameDetail struct {
 	Game
 	Tags  TagArray `db:"tags" json:"tags"`
 	Liked bool     `db:"liked" json:"liked"`
@@ -28,8 +28,8 @@ type GamDetail struct {
 
 // GetGames 获取游戏列表，支持标签过滤
 // 用户没登录就是id = 0，此时liked = false
-func GetGames(tagIds pq.Int64Array, userId int64) ([]GamDetail, error) {
-	var games []GamDetail
+func GetGames(tagIds pq.Int64Array, userId int64) ([]GameDetail, error) {
+	var games []GameDetail
 	var query string
 
 	if len(tagIds) == 0 {
@@ -41,7 +41,7 @@ func GetGames(tagIds pq.Int64Array, userId int64) ([]GamDetail, error) {
             FROM game g
             LEFT JOIN game_tag_relation gt ON g.id = gt.game_id
             LEFT JOIN tag t ON gt.tag_id = t.id
-            LEFT JOIN "like" l ON g.id = l.game_id AND l.user_id = $1
+            LEFT JOIN "like" l ON g.id = l.game_id AND l.user_id = 5
             GROUP BY g.id
         `
 		err := database.DB.Select(&games, query, userId)
@@ -74,7 +74,7 @@ func GetGames(tagIds pq.Int64Array, userId int64) ([]GamDetail, error) {
 }
 
 // GetGameById 根据ID获取游戏详情
-func GetGameById(id int64, userId int64) (*GamDetail, error) {
+func GetGameById(id int64, userId int64) (*GameDetail, error) {
 	query := `
         SELECT 
             g.*,
@@ -88,7 +88,7 @@ func GetGameById(id int64, userId int64) (*GamDetail, error) {
         GROUP BY g.id
     `
 
-	var game GamDetail
+	var game GameDetail
 	err := database.DB.Get(&game, query, id, userId)
 	if err != nil {
 		return nil, err
