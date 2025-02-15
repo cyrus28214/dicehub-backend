@@ -16,6 +16,7 @@ create table "game" (
     image text,
     rating float,
     likes_count int default 0,
+    extra_info jsonb,
     created_at timestamptz default current_timestamp,
     updated_at timestamptz default current_timestamp
 );

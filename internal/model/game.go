@@ -17,6 +17,7 @@ type Game struct {
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
 	LikesCount  int       `db:"likes_count" json:"likes_count"`
+	ExtraInfo   *string   `db:"extra_info" json:"extra_info"`
 }
 
 type GamDetail struct {
