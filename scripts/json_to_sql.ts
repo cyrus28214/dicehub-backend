@@ -324,7 +324,7 @@ export const games: Game[] = [
         cover: "https://pic1.imgdb.cn/item/67ab977ed0e0a243d4fe75aa.jpg",
         rating: 9.0,
         playCount: 89234,
-        tags: ["中式", "卡牌", "策略", "电子化"],
+        tags: ["中式", "卡牌", "策略", "电子化", "蒸蒸日上"],
         minPlayers: 4,
         maxPlayers: 10,
         duration: 45,
@@ -481,5 +481,5 @@ const tagRows = uniqueTags.map((tag, index) => `(${index + 1}, '${tag}', '')`).j
 console.log(tagRows + ';\n');
 
 console.log(`insert into game_tag_relation (game_id, tag_id) values`);
-const gameTagRelationRows = games.flatMap(game => game.tags.map(tag => `(${game.id}, ${uniqueTags.indexOf(tag)})`)).join(',\n');
+const gameTagRelationRows = games.flatMap(game => game.tags.map(tag => `(${game.id}, ${uniqueTags.indexOf(tag) + 1})`)).join(',\n');
 console.log(gameTagRelationRows + ';\n');

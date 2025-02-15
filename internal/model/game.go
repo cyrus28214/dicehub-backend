@@ -41,7 +41,7 @@ func GetGames(tagIds pq.Int64Array, userId int64) ([]GameDetail, error) {
             FROM game g
             LEFT JOIN game_tag_relation gt ON g.id = gt.game_id
             LEFT JOIN tag t ON gt.tag_id = t.id
-            LEFT JOIN "like" l ON g.id = l.game_id AND l.user_id = 5
+            LEFT JOIN "like" l ON g.id = l.game_id AND l.user_id = $1
             GROUP BY g.id
         `
 		err := database.DB.Select(&games, query, userId)
