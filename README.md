@@ -1,4 +1,6 @@
-# wx-miniprogram-backend
+# dicehub-backend
+
+frontend: [dicehub](https://github.com/cyrus28214/dicehub)
 
 微信小程序开发大作业的后端，使用Go语言开发。
 
