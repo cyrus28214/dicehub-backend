@@ -59,3 +59,9 @@ go run cmd/server/main.go
 ## documentation
 
 [ApiFox](https://1twcm6hsj4.apifox.cn/)
+
+## contributors
+
+- [@cyrus28214](https://github.com/cyrus28214)
+- [@LiceWx](https://github.com/LiceWx)
+- [@KyabiaWilks](https://github.com/KyabiaWilks)
